@@ -1,0 +1,21 @@
+version: '3'
+services:
+  ibm-mq:
+    image: ibmcom/mq:9.1.2.0
+    environment:
+      LICENSE: accept
+      MQ_QMGR_NAME: QM1
+    ports:
+      - "1414:1414"
+      - "9443:9443"
+  app:
+    build: .
+    environment:
+      - IBM_MQ_QUEUE_MANAGER=QM1
+      - IBM_MQ_CHANNEL=DEV.APP.SVRCONN
+      - IBM_MQ_CONN_NAME=ibm-mq(1414)
+      - IBM_MQ_USER=app
+      - IBM_MQ_PASSWORD=passw0rd
+      - IBM_MQ_QUEUE=CAPTURA.INTEGRADA.QUEUE
+    depends_on:
+      - ibm-mq

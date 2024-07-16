@@ -2,15 +2,16 @@ package com.lurregia.demo.config;
 
 
 import com.ibm.mq.jms.MQConnectionFactory;
-import com.ibm.mq.jms.MQQueue;
-import com.ibm.msg.client.wmq.WMQConstants;
+import org.apache.camel.CamelContext;
+import org.apache.camel.component.jms.JmsComponent;
+import org.apache.camel.impl.DefaultCamelContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
-import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.core.JmsTemplate;
 
+import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 
 @Configuration
@@ -26,40 +27,32 @@ public class MQConfig {
     @Value("${ibm.mq.conn-name}")
     private String connName;
 
-    @Value("${ibm.mq.user}")
-    private String user;
-
-    @Value("${ibm.mq.password}")
-    private String password;
-
-    @Value("${ibm.mq.queue}")
-    private String queueName;
-
     @Bean
-    public MQConnectionFactory mqConnectionFactory() throws JMSException {
-        MQConnectionFactory mqConnectionFactory = new MQConnectionFactory();
-        mqConnectionFactory.setQueueManager(queueManager);
-        mqConnectionFactory.setChannel(channel);
-        mqConnectionFactory.setConnectionNameList(connName);
-        mqConnectionFactory.setStringProperty(WMQConstants.WMQ_APPLICATIONNAME, "DemoApp");
-        mqConnectionFactory.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true);
-        mqConnectionFactory.setStringProperty(WMQConstants.USERID, user);
-        mqConnectionFactory.setStringProperty(WMQConstants.PASSWORD, password);
-        return mqConnectionFactory;
+    public CamelContext camelContext() throws JMSException {
+        CamelContext camelContext = new DefaultCamelContext();
+        return camelContext;
     }
 
     @Bean
-    public CachingConnectionFactory cachingConnectionFactory() throws JMSException {
-        return new CachingConnectionFactory();
+    public ConnectionFactory jmsConnectionFactory() throws JMSException {
+        MQConnectionFactory factory = new MQConnectionFactory();
+        factory.setQueueManager(queueManager);
+        factory.setChannel(channel);
+        factory.setConnectionNameList(connName);
+
+        return factory;
     }
 
     @Bean
-    public JmsTemplate jmsTemplate() throws JMSException {
-        return new JmsTemplate();
+    public JmsComponent jmsComponent(CamelContext camelContext, ConnectionFactory jmsConnectionFactory) {
+        JmsComponent jmsComponent = JmsComponent.jmsComponentAutoAcknowledge(jmsConnectionFactory);
+        camelContext.addComponent("jms", jmsComponent);
+        return jmsComponent;
     }
 
     @Bean
-    public MQQueue queue() throws JMSException {
-        return new MQQueue(queueName);
+    public JmsTemplate jmsTemplate(ConnectionFactory jmsConnectionFactory) {
+        return new JmsTemplate(jmsConnectionFactory);
     }
+
 }

@@ -3,11 +3,48 @@ package com.lurregia.demo.model;
 
 public class ITCRecord {
     private String tipoCartao;
+    private String credito;
+    private String debito;
+    private String prePago;
     private String tipoPessoa;
     private String cpCnpVbv;
     private String mcc;
     private String produto;
     private String parcelamento;
+
+    public String getCredito() {
+        return credito;
+    }
+
+    public void setCredito(String credito) {
+        this.credito = credito;
+    }
+
+    public String getDebito() {
+        return debito;
+    }
+
+    public void setDebito(String debito) {
+        this.debito = debito;
+    }
+
+    public String getPrePago() {
+        return prePago;
+    }
+
+    public void setPrePago(String prePago) {
+        this.prePago = prePago;
+    }
+
+    public String getRecorrente() {
+        return recorrente;
+    }
+
+    public void setRecorrente(String recorrente) {
+        this.recorrente = recorrente;
+    }
+
+    private String recorrente;
 
     public String getTipoCartao() {
         return tipoCartao;
